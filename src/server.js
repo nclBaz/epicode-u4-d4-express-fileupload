@@ -25,8 +25,8 @@ const loggerMiddleware = (req, res, next) => {
 }
 
 server.use(cors()) // If you want to connect FE to this BE you must use cors middleware
-server.use(loggerMiddleware) // GLOBAL MIDDLEWARE
 server.use(express.json()) // GLOBAL MIDDLEWARE If you don't add this line BEFORE the endpoints all requests'bodies will be UNDEFINED
+server.use(loggerMiddleware) // GLOBAL MIDDLEWARE
 
 // **************************************** ENDPOINTS ************************************
 server.use("/users", usersRouter) // /users will be the prefix that all the endpoints in the usersRouter will have
