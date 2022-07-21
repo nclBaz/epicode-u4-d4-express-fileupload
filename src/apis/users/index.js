@@ -15,6 +15,8 @@ import fs from "fs" // CORE MODULE (no need to install!)
 import { fileURLToPath } from "url" // CORE MODULE
 import { dirname, join } from "path" // CORE MODULE
 import uniqid from "uniqid"
+import { getUsers } from "../../lib/fs-tools.js"
+import multer from "multer"
 
 const usersRouter = express.Router() // a router is a set of similar endpoints grouped together
 
@@ -64,12 +66,12 @@ usersRouter.post("/", (req, res) => {
 })
 
 // 2. READ --> GET http://localhost:3001/users/
-usersRouter.get("/", anotherMiddleware, (req, res) => {
+usersRouter.get("/", anotherMiddleware, async (req, res) => {
   // ROUTE LEVEL MIDDLEWARE
   // 1. Read the content of users.json file
-  const fileContent = fs.readFileSync(usersJSONPath) // Here you obtain a BUFFER object, which is MACHINE READABLE ONLY
+  //const fileContent = fs.readFileSync(usersJSONPath) // Here you obtain a BUFFER object, which is MACHINE READABLE ONLY
   // 2. Obtain an array from that file
-  const usersArray = JSON.parse(fileContent)
+  const usersArray = await getUsers()
   // console.log("FILE CONTENT: ", usersArray) // JSON.parse() buffer --> array
   // 3. Send back the array as a response
 
@@ -77,13 +79,12 @@ usersRouter.get("/", anotherMiddleware, (req, res) => {
 })
 
 // 3. READ (single user) --> GET http://localhost:3001/users/:userId
-usersRouter.get("/:userId", (req, res) => {
+usersRouter.get("/:userId", async (req, res) => {
   // 1. Obtain the User Id from the URL
   const userID = req.params.userId
 
   // 2. Read the file --> obtaining an array
-  const usersArray = JSON.parse(fs.readFileSync(usersJSONPath))
-
+  const usersArray = await getUsers()
   // 3. Find the specific user in the array
   const foundUser = usersArray.find(user => user.id === userID)
   // 4. Send back a proper response
@@ -122,6 +123,16 @@ usersRouter.delete("/:userId", (req, res) => {
 
   // 4. Send a proper response
   res.status(204).send()
+})
+
+usersRouter.patch("/:userId/avatar", multer().single("avatar"), async (req, res, next) => {
+  try {
+    // find user by userId (3kg6a8l5s06609) in users.json
+    // save the file as 3kg6a8l5s06609.gif into the public/img/users folder
+    // update that user by adding the path to the image, like "avatar": "/img/users/3kg6a8l5s06609.gif" to give the FE the possibility to display the
+  } catch (error) {
+    next(error)
+  }
 })
 
 export default usersRouter // do not forget to export it!
